@@ -1,0 +1,8 @@
+/target/
+*.log
+/AGENTS.md
+/.agents/
+/docs/
+/for-agents/
+/exsync.toml
+/com.han.exsync.plist
