@@ -1,0 +1,10 @@
+[package]
+name = "exsync"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+regex = "1"
+
+[features]
+kill-hook = []
