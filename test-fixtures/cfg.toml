@@ -1,0 +1,19 @@
+version = 1
+
+[[entry]]
+name = "dotfiles"
+mode = "mirror"
+drive = "KINGSTON"
+source = "~/Documents/Programming/dotfiles"
+dest = "05_Programming/dotfiles"
+exclude = [".DS_Store"]
+
+[[entry]]
+name = "handy-audio"
+mode = "move"
+drive = "KINGSTON"
+source = "~/Library/Application Support/com.pais.handy/recordings"
+dest = "05_Programming/AI/dictation/handy-voice-recordings"
+include = ["*.wav"]
+min_age_minutes = 5
+skip_open = true
