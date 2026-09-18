@@ -1,7 +1,9 @@
 mod cli;
 mod config;
 mod copy;
+mod dispatch;
 mod hash;
+mod log;
 mod manifest;
 mod matcher;
 mod mirror;
@@ -11,9 +13,9 @@ mod notify;
 fn main() {
     let args: Vec<String> = std::env::args().skip(1).collect();
     match cli::parse_args(args.into_iter()) {
-        Ok(_) => {
-            println!("{}", cli::USAGE);
-            std::process::exit(0);
+        Ok(options) => {
+            let code = dispatch::run(&options);
+            std::process::exit(code);
         }
         Err(code) => {
             eprintln!("{}", cli::USAGE);
