@@ -82,7 +82,7 @@ fn no_drive_mounted_returns_zero_with_single_run_line() {
 }
 
 #[test]
-fn mounted_drive_reaches_mode_call_as_not_implemented_fail() {
+fn mounted_mirror_entry_runs_and_returns_zero() {
     let _lock = TEST_MUTEX.lock().unwrap();
     let saved = save_env();
     let base = unique_base("mounted");
@@ -97,9 +97,12 @@ fn mounted_drive_reaches_mode_call_as_not_implemented_fail() {
 
     let content = std::fs::read_to_string(&log).unwrap_or_default();
     restore_env(saved);
+    let marker = base.join("vols/KINGSTON/x/.exsync-managed");
+    let marker_exists = marker.is_file();
     let _ = std::fs::remove_dir_all(&base);
-    assert_eq!(code, 1);
-    assert!(content.contains("FAIL t - 0 not-implemented"));
+    assert_eq!(code, 0);
+    assert!(content.contains("OK run entries=1 mounted=1"));
+    assert!(marker_exists, "mirror must write the marker for an empty source");
 }
 
 #[test]
