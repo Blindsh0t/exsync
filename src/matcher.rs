@@ -25,6 +25,17 @@ pub enum MatchError {
     Regex(regex::Error),
 }
 
+impl std::fmt::Display for MatchError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            MatchError::Io(e) => write!(f, "io: {e}"),
+            MatchError::Regex(e) => write!(f, "regex: {e}"),
+        }
+    }
+}
+
+impl std::error::Error for MatchError {}
+
 impl From<std::io::Error> for MatchError {
     fn from(e: std::io::Error) -> Self {
         Self::Io(e)
