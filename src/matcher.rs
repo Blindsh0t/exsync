@@ -59,62 +59,6 @@ fn glob_match_recursive(pattern: &str, path: &str) -> bool {
     let p_chars: Vec<char> = pattern.chars().collect();
     let s_chars: Vec<char> = path.chars().collect();
     
-    fn match_internal(p: &[char], s: &[char]) -> bool {
-        if p.is_empty() {
-            return s.is_empty();
-        }
-
-        if p.len() >= 2 && p[0] == '*' && p[1] == '*' {
-            // Handle **
-            // Try matching the rest of the pattern against all possible suffixes of s
-            for i in 0..=s.len() {
-                if match_internal(&p[2..], &s[i..]) {
-                    return true;
-                }
-            }
-            false
-        } else if p[0] == '*' {
-            // Handle * (matches any run except '/')
-            // We must match 0 or more characters that are not '/'
-            for i in 0..=s.len() {
-                if i > 0 && s[i-1] == '/' {
-                    // * cannot match across /
-                    // but wait, the loop above allows * to match nothing, then it would start at /
-                    // Actually, if s[i-1] == '/', the * part just ended.
-                    // Let's refine:
-                }
-                
-                // Try to match the rest
-                if match_internal(&p[1..], &s[i..]) {
-                    return true;
-                }
-                
-                if i < s.len() && s[i] == '/' {
-                    // Cannot skip / with *
-                    break;
-                }
-                // Note: if s[i] is not '/', we continue to try longer matches for *
-            }
-            // The loop above is slightly wrong. Let's fix it.
-            false
-        } else if p[0] == '?' {
-            if !s.is_empty() && s[0] != '/' {
-                match_internal(&p[1..], &s[1..])
-            } else {
-                false
-            }
-        } else {
-            if !s.is_empty() && p[0] == s[0] {
-                match_internal(&p[1..], &s[1..])
-            } else {
-                false
-            }
-        }
-    }
-    
-    // Correction for '*': it matches zero or more characters, but NOT '/'.
-    // Let's use a more robust approach for the '*' and '**' logic.
-    
     // I'll use a helper that explicitly handles the '*' constraint.
     match_robust(&p_chars, &s_chars)
 }
