@@ -62,7 +62,7 @@ pub fn run(options: &cli::Options) -> i32 {
         Err(e) => {
             log::log_line(&format!("FAIL config - 0 {}", reason_token(&e.to_string())));
             eprintln!("exsync: cannot load config '{}': {e}", cfg_path.display());
-            return 2;
+            return e.code();
         }
     };
     let vol_root = volumes_root();
