@@ -31,6 +31,9 @@ impl Default for Fnv1a {
     }
 }
 
+/// Hash a whole buffer in one call. Kept for tests and for callers that
+/// already hold the bytes; the copy core streams through `Fnv1a` instead.
+#[allow(dead_code)]
 pub fn fnv1a64(bytes: &[u8]) -> u64 {
     let mut h = Fnv1a::new();
     h.write(bytes);
