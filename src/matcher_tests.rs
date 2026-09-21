@@ -215,7 +215,9 @@ fn test_it06_open_guard() {
     let candidates = collect(&entry, &root, now).expect("collect failed");
     assert_eq!(candidates.len(), 1);
 
-    // Hold file open
+    // Hold the file open, then wait until lsof actually reports it. The
+    // holder process needs a moment before fd 3 exists, so poll instead of
+    // racing it.
     let path_str = path.to_str().unwrap();
     let mut child = Command::new("sh")
         .arg("-c")
@@ -223,10 +225,32 @@ fn test_it06_open_guard() {
         .spawn()
         .expect("failed to spawn shell");
 
+    let mut opened = false;
+    for _ in 0..100 {
+        if super::is_open(&path) {
+            opened = true;
+            break;
+        }
+        std::thread::sleep(std::time::Duration::from_millis(20));
+    }
+    assert!(opened, "holder process never opened the file");
+
     let candidates_open = collect(&entry, &root, now).expect("collect failed");
     assert!(candidates_open.is_empty(), "File should be skipped because it is open");
 
     child.wait().expect("wait failed");
+
+    let mut closed = false;
+    for _ in 0..100 {
+        if !super::is_open(&path) {
+            closed = true;
+            break;
+        }
+        std::thread::sleep(std::time::Duration::from_millis(20));
+    }
+    assert!(closed, "holder exited but the file still reports as open");
+    let candidates_closed = collect(&entry, &root, now).expect("collect failed");
+    assert_eq!(candidates_closed.len(), 1, "closed file must be selectable again");
     cleanup_temp_dir(root);
 }
 
