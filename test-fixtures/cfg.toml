@@ -1,19 +1,19 @@
 version = 1
 
 [[entry]]
-name = "dotfiles"
+name = "notes"
 mode = "mirror"
-drive = "KINGSTON"
-source = "~/Documents/Programming/dotfiles"
-dest = "05_Programming/dotfiles"
+drive = "BACKUP"
+source = "~/Documents/notes"
+dest = "backup/notes"
 exclude = [".DS_Store"]
 
 [[entry]]
-name = "handy-audio"
+name = "audio"
 mode = "move"
-drive = "KINGSTON"
-source = "~/Library/Application Support/com.pais.handy/recordings"
-dest = "05_Programming/AI/dictation/handy-voice-recordings"
+drive = "BACKUP"
+source = "~/recordings"
+dest = "backup/audio"
 include = ["*.wav"]
 min_age_minutes = 5
 skip_open = true
