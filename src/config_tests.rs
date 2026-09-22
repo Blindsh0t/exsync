@@ -65,45 +65,36 @@ fn ut03_fixture_entries_parse() {
     let entries = load(&path).expect("fixture should parse");
     assert_eq!(entries.len(), 2);
 
-    let dot = &entries[0];
-    assert_eq!(dot.name, "dotfiles");
-    assert_eq!(dot.mode, Mode::Mirror);
-    assert_eq!(dot.drive, "KINGSTON");
-    assert_eq!(dot.dest, "05_Programming/dotfiles");
-    assert_eq!(dot.exclude, vec![".DS_Store".to_string()]);
-    assert!(dot.include.is_empty());
-    assert_eq!(dot.name_re, None);
-    assert_eq!(dot.min_age_minutes, None);
-    assert!(!dot.skip_open);
-    assert_eq!(dot.verify, Verify::Readback);
+    let notes = &entries[0];
+    assert_eq!(notes.name, "notes");
+    assert_eq!(notes.mode, Mode::Mirror);
+    assert_eq!(notes.drive, "BACKUP");
+    assert_eq!(notes.dest, "backup/notes");
+    assert_eq!(notes.exclude, vec![".DS_Store".to_string()]);
+    assert!(notes.include.is_empty());
+    assert_eq!(notes.name_re, None);
+    assert_eq!(notes.min_age_minutes, None);
+    assert!(!notes.skip_open);
+    assert_eq!(notes.verify, Verify::Readback);
     let h = home();
     assert!(
-        dot.source.starts_with(&h),
+        notes.source.starts_with(&h),
         "source {:?} should start with HOME {h}",
-        dot.source
+        notes.source
     );
-    assert_eq!(
-        dot.source,
-        PathBuf::from(&h).join("Documents/Programming/dotfiles")
-    );
+    assert_eq!(notes.source, PathBuf::from(&h).join("Documents/notes"));
 
-    let handy = &entries[1];
-    assert_eq!(handy.name, "handy-audio");
-    assert_eq!(handy.mode, Mode::Move);
-    assert_eq!(handy.drive, "KINGSTON");
-    assert_eq!(
-        handy.dest,
-        "05_Programming/AI/dictation/handy-voice-recordings"
-    );
-    assert_eq!(handy.include, vec!["*.wav".to_string()]);
-    assert!(handy.exclude.is_empty());
-    assert_eq!(handy.min_age_minutes, Some(5));
-    assert!(handy.skip_open);
-    assert_eq!(handy.verify, Verify::Readback);
-    assert_eq!(
-        handy.source,
-        PathBuf::from(&h).join("Library/Application Support/com.pais.handy/recordings")
-    );
+    let audio = &entries[1];
+    assert_eq!(audio.name, "audio");
+    assert_eq!(audio.mode, Mode::Move);
+    assert_eq!(audio.drive, "BACKUP");
+    assert_eq!(audio.dest, "backup/audio");
+    assert_eq!(audio.include, vec!["*.wav".to_string()]);
+    assert!(audio.exclude.is_empty());
+    assert_eq!(audio.min_age_minutes, Some(5));
+    assert!(audio.skip_open);
+    assert_eq!(audio.verify, Verify::Readback);
+    assert_eq!(audio.source, PathBuf::from(&h).join("recordings"));
 }
 
 #[test]
