@@ -18,9 +18,12 @@ fn escape(s: &str) -> String {
 }
 
 /// Send a macOS notification. With `dry_run`, print
-/// `NOTIFY <title>: <body>` to stdout and run nothing. Otherwise run
-/// `/usr/bin/osascript` with stdout and stderr discarded; a missing
-/// `osascript` binary is not an error.
+/// `NOTIFY <title>: <body>` to stdout and run nothing. Otherwise spawn
+/// `/usr/bin/osascript` with stdin, stdout and stderr discarded and release
+/// it without waiting: `notify` never blocks the run and never fails it.
+/// A launchd process has no reachable GUI session, so waiting on
+/// `osascript` could stall a refusal notification. Reaping nothing is
+/// acceptable; a missing `osascript` binary is not an error.
 pub fn notify(title: &str, body: &str, dry_run: bool) {
     if dry_run {
         println!("NOTIFY {title}: {body}");
@@ -29,9 +32,14 @@ pub fn notify(title: &str, body: &str, dry_run: bool) {
     let title = escape(title);
     let body = escape(body);
     let script = format!("display notification \"{body}\" with title \"{title}\"");
+    // Never block: spawn and drop the child without waiting (no `wait()`
+    // or `output()`, no thread, no timeout loop).
     match Command::new("/usr/bin/osascript")
         .args(["-e", script.as_str()])
-        .output()
+        .stdin(std::process::Stdio::null())
+        .stdout(std::process::Stdio::null())
+        .stderr(std::process::Stdio::null())
+        .spawn()
     {
         Ok(_) => {}
         Err(_) => {}
