@@ -24,7 +24,10 @@ else
 fi
 
 mkdir -p "$HOME/Library/LaunchAgents"
-ln -sf "$PLIST_SRC" "$HOME/Library/LaunchAgents/com.han.exsync.plist"
+# Copy, never symlink: launchd/TCC denies reads through a symlink that points
+# into ~/Documents, which dropped the agent at login (`removing service`).
+rm -f "$HOME/Library/LaunchAgents/com.han.exsync.plist"
+cp "$PLIST_SRC" "$HOME/Library/LaunchAgents/com.han.exsync.plist"
 
 launchctl bootout gui/"$(id -u)"/com.han.exsync 2>/dev/null || true
 launchctl bootstrap gui/"$(id -u)" "$HOME/Library/LaunchAgents/com.han.exsync.plist"
