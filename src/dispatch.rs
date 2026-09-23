@@ -32,6 +32,23 @@ fn is_mounted(root: &Path, drive: &str) -> bool {
     root.join(drive).is_dir()
 }
 
+/// Best-effort log append: when a log write fails, print exactly one
+/// stderr line and continue the run. Success stays silent on stdout and
+/// stderr, and a failing log never changes the exit code.
+fn log_best_effort(line: &str) {
+    if let Err(e) = log::log_line(line) {
+        let path = log::log_path()
+            .map(|p| p.display().to_string())
+            .unwrap_or_else(|_| "<unknown>".to_string());
+        eprintln!("exsync: cannot write log ({path}): {e}");
+    }
+}
+
+/// A launchd user agent is not guaranteed to export `HOME`.
+fn home_is_missing() -> bool {
+    std::env::var("HOME").map(|h| h.is_empty()).unwrap_or(true)
+}
+
 /// Collapse an error message to a single log-safe token.
 fn reason_token(msg: &str) -> String {
     if msg == "not implemented" {
@@ -56,11 +73,14 @@ fn reason_token(msg: &str) -> String {
 /// Never writes anywhere above `<volumes-root>/<drive>`; the only
 /// filesystem writes here are the log appends (mode stubs write nothing).
 pub fn run(options: &cli::Options) -> i32 {
+    if home_is_missing() {
+        eprintln!("exsync: HOME is unset; set EXSYNC_LOG or HOME");
+    }
     let cfg_path = config_path();
     let entries = match config::load(&cfg_path) {
         Ok(e) => e,
         Err(e) => {
-            log::log_line(&format!("FAIL config - 0 {}", reason_token(&e.to_string())));
+            log_best_effort(&format!("FAIL config - 0 {}", reason_token(&e.to_string())));
             eprintln!("exsync: cannot load config '{}': {e}", cfg_path.display());
             return e.code();
         }
@@ -72,14 +92,14 @@ pub fn run(options: &cli::Options) -> i32 {
         .count();
 
     if mounted == 0 {
-        log::log_line(&format!("OK run entries={} mounted=0", entries.len()));
+        log_best_effort(&format!("OK run entries={} mounted=0", entries.len()));
         return 0;
     }
 
     let mut failed = false;
     for entry in &entries {
         if !is_mounted(&vol_root, &entry.drive) {
-            log::log_line(&log::action_line(
+            log_best_effort(&log::action_line(
                 "SKIP",
                 &entry.name,
                 "-",
@@ -95,11 +115,11 @@ pub fn run(options: &cli::Options) -> i32 {
         };
         if let Err(e) = result {
             let reason = reason_token(&e);
-            log::log_line(&log::action_line("FAIL", &entry.name, "-", 0, &reason));
+            log_best_effort(&log::action_line("FAIL", &entry.name, "-", 0, &reason));
             failed = true;
         }
     }
-    log::log_line(&format!(
+    log_best_effort(&format!(
         "OK run entries={} mounted={}",
         entries.len(),
         mounted
