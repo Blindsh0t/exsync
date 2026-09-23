@@ -266,7 +266,7 @@ pub fn run(entry: &config::Entry, vol_root: &Path, dry_run: bool) -> Result<(), 
         let meta = std::fs::symlink_metadata(&dest)
             .map_err(|e| format!("cannot stat destination: {e}"))?;
         if !meta.is_dir() || meta.file_type().is_symlink() {
-            log::log_line(&log::action_line(
+            let _ = log::log_line(&log::action_line(
                 "REFUSED",
                 &entry.name,
                 "-",
@@ -293,7 +293,7 @@ pub fn run(entry: &config::Entry, vol_root: &Path, dry_run: bool) -> Result<(), 
             Err(e) => return Err(format!("cannot read destination: {e}")),
         };
         if non_empty && !managed {
-            log::log_line(&log::action_line(
+            let _ = log::log_line(&log::action_line(
                 "REFUSED",
                 &entry.name,
                 "-",
@@ -381,7 +381,7 @@ pub fn run(entry: &config::Entry, vol_root: &Path, dry_run: bool) -> Result<(), 
                     SystemTime::now(),
                 ) {
                     let reason = reason_token(&e.to_string());
-                    log::log_line(&log::action_line(
+                    let _ = log::log_line(&log::action_line(
                         "FAIL",
                         &entry.name,
                         &rel_str,
@@ -401,7 +401,7 @@ pub fn run(entry: &config::Entry, vol_root: &Path, dry_run: bool) -> Result<(), 
             Err(e) => {
                 let reason = reason_token(&e.to_string());
                 let size = std::fs::metadata(&dst_path).map(|m| m.len()).unwrap_or(0);
-                log::log_line(&log::action_line(
+                let _ = log::log_line(&log::action_line(
                     "FAIL",
                     &entry.name,
                     &rel_str,
@@ -434,7 +434,7 @@ pub fn run(entry: &config::Entry, vol_root: &Path, dry_run: bool) -> Result<(), 
             };
             if identical {
                 // Verified identical: finish the move without a second copy.
-                log::log_line(&log::action_line(
+                let _ = log::log_line(&log::action_line(
                     "DUP",
                     &entry.name,
                     &rel_str,
@@ -451,7 +451,7 @@ pub fn run(entry: &config::Entry, vol_root: &Path, dry_run: bool) -> Result<(), 
                             SystemTime::now(),
                         ) {
                             let reason = reason_token(&e.to_string());
-                            log::log_line(&log::action_line(
+                            let _ = log::log_line(&log::action_line(
                                 "FAIL",
                                 &entry.name,
                                 &rel_str,
@@ -469,7 +469,7 @@ pub fn run(entry: &config::Entry, vol_root: &Path, dry_run: bool) -> Result<(), 
                         }
                     }
                     Err(reason) => {
-                        log::log_line(&log::action_line(
+                        let _ = log::log_line(&log::action_line(
                             "FAIL",
                             &entry.name,
                             &rel_str,
@@ -487,7 +487,7 @@ pub fn run(entry: &config::Entry, vol_root: &Path, dry_run: bool) -> Result<(), 
                 continue;
             }
             // Same name, different content: collision. Source stays intact.
-            log::log_line(&log::action_line(
+            let _ = log::log_line(&log::action_line(
                 "FAIL",
                 &entry.name,
                 &rel_str,
@@ -509,7 +509,7 @@ pub fn run(entry: &config::Entry, vol_root: &Path, dry_run: bool) -> Result<(), 
             .unwrap_or_else(|| dest.clone());
         if let Err(e) = std::fs::create_dir_all(&parent) {
             let reason = reason_token(&e.to_string());
-            log::log_line(&log::action_line(
+            let _ = log::log_line(&log::action_line(
                 "FAIL",
                 &entry.name,
                 &rel_str,
@@ -530,7 +530,7 @@ pub fn run(entry: &config::Entry, vol_root: &Path, dry_run: bool) -> Result<(), 
             Err(copy::CopyError::SourceMissing) => continue,
             Err(e) => {
                 let reason = reason_token(&e.to_string());
-                log::log_line(&log::action_line(
+                let _ = log::log_line(&log::action_line(
                     "FAIL",
                     &entry.name,
                     &rel_str,
@@ -564,7 +564,7 @@ pub fn run(entry: &config::Entry, vol_root: &Path, dry_run: bool) -> Result<(), 
                     manifest::append_entry(&dest, &entry.name, &rel_str, c.size, SystemTime::now())
                 {
                     let reason = reason_token(&e.to_string());
-                    log::log_line(&log::action_line(
+                    let _ = log::log_line(&log::action_line(
                         "FAIL",
                         &entry.name,
                         &rel_str,
@@ -582,7 +582,7 @@ pub fn run(entry: &config::Entry, vol_root: &Path, dry_run: bool) -> Result<(), 
                 }
             }
             Err(reason) => {
-                log::log_line(&log::action_line(
+                let _ = log::log_line(&log::action_line(
                     "FAIL",
                     &entry.name,
                     &rel_str,
