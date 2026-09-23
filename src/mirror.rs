@@ -223,7 +223,7 @@ pub fn run(entry: &config::Entry, vol_root: &Path, dry_run: bool) -> Result<(), 
                 0,
                 "unmanaged-destination",
             );
-            log::log_line(&line);
+            let _ = log::log_line(&line);
             notify::notify(
                 "Exsync refused",
                 &format!("{}: unmanaged-destination", entry.name),
@@ -252,7 +252,7 @@ pub fn run(entry: &config::Entry, vol_root: &Path, dry_run: bool) -> Result<(), 
                 0,
                 "unmanaged-destination",
             );
-            log::log_line(&line);
+            let _ = log::log_line(&line);
             notify::notify(
                 "Exsync refused",
                 &format!("{}: unmanaged-destination", entry.name),
@@ -346,7 +346,7 @@ pub fn run(entry: &config::Entry, vol_root: &Path, dry_run: bool) -> Result<(), 
         if std::fs::symlink_metadata(&dst_file).is_ok() {
             match copy::same_size_mtime(src_path, &dst_file) {
                 Ok(true) => {
-                    log::log_line(&log::action_line(
+                    let _ = log::log_line(&log::action_line(
                         "DUP",
                         &entry.name,
                         &rel_str,
@@ -362,7 +362,7 @@ pub fn run(entry: &config::Entry, vol_root: &Path, dry_run: bool) -> Result<(), 
         let parent = dst_file.parent().map(|p| p.to_path_buf()).unwrap_or_else(|| dest.clone());
         if let Err(e) = std::fs::create_dir_all(&parent) {
             let reason = reason_token(&e.to_string());
-            log::log_line(&log::action_line("FAIL", &entry.name, &rel_str, *size, &reason));
+            let _ = log::log_line(&log::action_line("FAIL", &entry.name, &rel_str, *size, &reason));
             failed = true;
             failed_rels.insert(rel.clone());
             continue;
@@ -374,7 +374,7 @@ pub fn run(entry: &config::Entry, vol_root: &Path, dry_run: bool) -> Result<(), 
             }
             Err(e) => {
                 let reason = reason_token(&e.to_string());
-                log::log_line(&log::action_line("FAIL", &entry.name, &rel_str, *size, &reason));
+                let _ = log::log_line(&log::action_line("FAIL", &entry.name, &rel_str, *size, &reason));
                 failed = true;
                 failed_rels.insert(rel.clone());
             }
@@ -406,12 +406,12 @@ pub fn run(entry: &config::Entry, vol_root: &Path, dry_run: bool) -> Result<(), 
             if f.is_symlink {
                 if let Err(e) = std::fs::remove_file(&f.path) {
                     let reason = reason_token(&e.to_string());
-                    log::log_line(&log::action_line("FAIL", &entry.name, &rel_str, size, &reason));
+                    let _ = log::log_line(&log::action_line("FAIL", &entry.name, &rel_str, size, &reason));
                     failed = true;
                 }
             } else if let Err(e) = std::fs::remove_file(&f.path) {
                 let reason = reason_token(&e.to_string());
-                log::log_line(&log::action_line("FAIL", &entry.name, &rel_str, size, &reason));
+                let _ = log::log_line(&log::action_line("FAIL", &entry.name, &rel_str, size, &reason));
                 failed = true;
             }
         }
