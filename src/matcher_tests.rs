@@ -2,7 +2,7 @@ use crate::matcher::*;
 use crate::config::{Entry, Mode, Verify};
 use std::fs;
 use std::path::{Path, PathBuf};
-use std::time::{SystemTime, Duration};
+use std::time::SystemTime;
 use std::process::Command;
 
 fn create_temp_dir() -> std::path::PathBuf {
